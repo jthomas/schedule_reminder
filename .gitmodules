@@ -1,0 +1,3 @@
+[submodule "node-google-spreadsheets"]
+	path = node-google-spreadsheets
+	url = https://github.com/samcday/node-google-spreadsheets.git
