@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+
+<script src="http://www.google.com/jsapi"></script>
+<script>
+google.load('gdata', '1.x');
+google.setOnLoadCallback(loaded);
+
+function handleError() {
+    console.log("error...", arguments);
+};
+function handleFeed(spreadsheet) {
+    console.log("success...", arguments);
+    service.getEntry(spreadsheet.feed.entry[0].link[0].href, handleSheet, handleError);
+};
+
+
+function handleSheet(sheet) {
+    var idx, row, entry = sheet.feed.entry;
+    console.log("sheet success...", arguments);
+    for(idx in entry) {
+        row = entry[idx];
+        console.log(row.title.$t, parseTrainingDays(row.content.$t));
+    }
+}
+
+function parseTrainingDays(columnText) {
+    var columns = columnText.split(", ");
+        
+
+}
+
+function loaded() {
+    console.log("Loaded...", arguments);
+    window.service = new google.gdata.client.GoogleService('writely', 'DocList-App-v1.0'); 
+    service.getEntry("https://spreadsheets.google.com/feeds/worksheets/0An1xGHsgw2ledDNQWmhxenZ2RW9ocGNCZHJhT09mRUE/public/values", handleFeed, handleError);
+    return;
+    // service.getFeed("http://docs.google.com/feeds/"+ 'documents/private/full/', handleFeed, handleError);
+};
+</script>
+
+</html>
