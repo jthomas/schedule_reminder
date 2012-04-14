@@ -1,42 +1,145 @@
 <!DOCTYPE html>
 <html>
-
-<script src="http://www.google.com/jsapi"></script>
+    
 <script>
-google.load('gdata', '1.x');
-google.setOnLoadCallback(loaded);
-
-function handleError() {
-    console.log("error...", arguments);
-};
-function handleFeed(spreadsheet) {
-    console.log("success...", arguments);
-    service.getEntry(spreadsheet.feed.entry[0].link[0].href, handleSheet, handleError);
-};
-
-
-function handleSheet(sheet) {
-    var idx, row, entry = sheet.feed.entry;
-    console.log("sheet success...", arguments);
-    for(idx in entry) {
-        row = entry[idx];
-        console.log(row.title.$t, parseTrainingDays(row.content.$t));
+    var dojoConfig = {
+        async: true
+    };
+</script>
+<script src="./lib/dojo/dojo.js"></script>
+<script type="text/javascript" src="http://www.google.com/jsapi"></script>
+<script>
+    google.load('gdata', '2.x', {packages: ['calendar']});
+    function logon() {
+        var scope = "https://www.google.com/calendar/feeds";
+        google.accounts.user.login(scope);
     }
+
+    require(["dojo/_base/array", "dojo/_base/lang", "dojo/domReady!"], function (array, lang) {
+
+        function handleError() {
+            console.log("error...", arguments);
+        };
+        function handleFeed(spreadsheet) {
+            service.getEntry(spreadsheet.feed.entry[0].link[0].href, handleSheet, handleError);
+        };
+
+        function handleSheet(sheet) {
+            var trainingWeeks = array.map(sheet.feed.entry, parseTrainingWeek);
+            console.log(trainingWeeks);
+        };
+
+        function parseTrainingWeek(sheetRow) {
+            return {
+                title: parseWeekTitle(sheetRow.title.$t),
+                days: parseTrainingDays(sheetRow.content.$t)
+            }
+        };
+
+        function parseWeekTitle (title) {
+            return title;
+        };
+
+        function parseTrainingDays(text) {
+            var days = {}, dayAndTraining;
+
+            array.forEach(text.split(", "), function (trainingDay) {
+                dayAndTraining = trainingDay.split(": ");
+                days[dayAndTraining[0]] = dayAndTraining[1];
+            });
+
+            return days;
+        };
+
+        var loaded = function () {
+            window.service = new google.gdata.client.GoogleService('writely', 'DocList-App-v1.0'); 
+            service.getEntry("https://spreadsheets.google.com/feeds/worksheets/0An1xGHsgw2ledDNQWmhxenZ2RW9ocGNCZHJhT09mRUE/public/values", handleFeed, handleError);
+        };
+
+
+        google.setOnLoadCallback(createCalendar);
+
+        function createCalendar() {
+        // Need to be able to add entries to calendar
+        var calendarService = new google.gdata.calendar.CalendarService('schedule-reminder')
+
+// Create an instance of CalendarEntry, representing the new calendar
+var entry = new google.gdata.calendar.CalendarEntry();
+
+// Set the calendar title
+entry.setTitle(google.gdata.atom.Text.create('JS-Client: insert calendar'));
+
+// Set the calendar summary
+var summary = new google.gdata.atom.Text();
+summary.setText('This is a test calendar created by JS Client');
+entry.setSummary(summary);
+
+// Set the calendar timezone
+var timeZone = new google.gdata.calendar.TimeZoneProperty();
+timeZone.setValue('America/Los_Angeles');
+entry.setTimeZone(timeZone);
+
+// Set the calendar location
+var where = new google.gdata.Where();
+where.setLabel('Mountain View, CA');
+where.setValueString('Mountain View, CA');
+entry.addLocation(where);
+
+// Set the calendar to be visible in the Google Calendar UI
+var hidden = new google.gdata.calendar.HiddenProperty();
+hidden.setValue(false);
+entry.setHidden(hidden);
+
+// Set the color that represent this calendar in the Google Calendar UI
+var color = new google.gdata.calendar.ColorProperty();
+color.setValue('#2952A3');
+entry.setColor(color);
+
+// The callback method that will be called after a successful 
+// insertion from insertEntry()
+var callback = function(result) {
+  console.log('calendar created!');
+  console.log(result);
+
+  var entry = new google.gdata.calendar.CalendarEventEntry({
+      title: {
+          type: 'text',
+          text:'AAAA' 
+      },
+      content: {
+          type: 'text',
+          text: 'AAAAA' 
+      },
+      times: [{
+          startTime: google.gdata.DateTime.fromIso8601((new Date()).toISOString()),
+          endTime: google.gdata.DateTime.fromIso8601((new Date().toISOString()))
+      }]
+  });
+
+
+  cb = function () {
+      console.log("success");
+  }
+
+    calendarService.insertEntry(result.entry.link[0].href, entry, cb, 
+    handleError, google.gdata.calendar.CalendarEventEntry);
 }
 
-function parseTrainingDays(columnText) {
-    var columns = columnText.split(", ");
+// Error handler will be invoked if there is an error from insertEntry()
+var handleError = function(error) {
+  console.log(error);
+}
+var feedUri = 'https://www.google.com/calendar/feeds/default/owncalendars/full';
+// Submit the request using the calendar service object
+calendarService.insertEntry(feedUri, entry, callback, 
+    handleError, google.gdata.calendar.CalendarEntry);
         
 
 }
+    });
 
-function loaded() {
-    console.log("Loaded...", arguments);
-    window.service = new google.gdata.client.GoogleService('writely', 'DocList-App-v1.0'); 
-    service.getEntry("https://spreadsheets.google.com/feeds/worksheets/0An1xGHsgw2ledDNQWmhxenZ2RW9ocGNCZHJhT09mRUE/public/values", handleFeed, handleError);
-    return;
-    // service.getFeed("http://docs.google.com/feeds/"+ 'documents/private/full/', handleFeed, handleError);
-};
 </script>
 
+<button onclick="logon();">Login</button>
+<img src="./dojo.png"></img>
 </html>

@@ -2,3 +2,6 @@
 - Adding retrieved training schedule to Remember The Milk
 - Using oauth for authentication to retrieve and access spreadsheets & calendar
 - Validation that all days of the week are present
+
+
+- File bug for auth. request on requirejs plugins.
