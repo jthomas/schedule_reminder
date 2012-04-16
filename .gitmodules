@@ -1,6 +1,6 @@
 [submodule "lib/dojo"]
 	path = lib/dojo
 	url = git@github.com:dojo/dojo.git
-[submodule "lib/requirejs-plugins"]
-	path = lib/requirejs-plugins
-	url = https://github.com/millermedeiros/requirejs-plugins.git
+[submodule "lib/compose"]
+	path = lib/compose
+	url = https://github.com/kriszyp/compose.git

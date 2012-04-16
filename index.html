@@ -15,7 +15,7 @@
         google.accounts.user.login(scope);
     }
 
-    require(["dojo/_base/array", "dojo/_base/lang", "dojo/domReady!"], function (array, lang) {
+    require(["dojo/_base/array", "dojo/_base/lang", "google/Calendar", "dojo/domReady!"], function (array, lang, Calendar) {
 
         function handleError() {
             console.log("error...", arguments);
@@ -60,6 +60,15 @@
         google.setOnLoadCallback(createCalendar);
 
         function createCalendar() {
+
+            var cal = new Calendar(google); 
+            cal.title = "Some title";
+            cal.summary = "Some summary";
+            cal.save();
+
+            return;
+
+
         // Need to be able to add entries to calendar
         var calendarService = new google.gdata.calendar.CalendarService('schedule-reminder')
 
