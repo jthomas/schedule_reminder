@@ -64,7 +64,11 @@
             var cal = new Calendar(google); 
             cal.title = "Some title";
             cal.summary = "Some summary";
-            cal.save();
+            var promise = cal.save();
+
+            promise.then(function () {
+                cal.add_event("Running six miles tomorrow"); 
+            }); 
 
             return;
 
